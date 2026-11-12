@@ -1,0 +1,42 @@
+name: Archive GitHub traffic statistics
+
+on:
+  schedule:
+    - cron: "13 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: anenji-traffic-archive
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Retrieve GitHub traffic
+        env:
+          GH_TRAFFIC_TOKEN: ${{ secrets.GH_TRAFFIC_TOKEN }}
+        run: python3 scripts/collect_traffic.py
+
+      - name: Commit statistics when available
+        run: |
+          if [ ! -f stats/traffic.json ]; then
+            echo "No stats collected (GH_TRAFFIC_TOKEN not configured)."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add stats/traffic.json
+          if git diff --staged --quiet; then
+            echo "No traffic changes."
+            exit 0
+          fi
+          git commit -m "data: archive GitHub traffic [skip ci]"
+          git push
