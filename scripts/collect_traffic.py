@@ -16,7 +16,7 @@ OUT = Path("stats/traffic.json")
 
 def get(path: str):
     request = Request(
-        f"https://api.github.com/repos/{REPOSITORY}/{path}",
+        f"https://api.github.com/repos/{REPOSITORY}" + (f"/{path}" if path else ""),
         headers={
             "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {TOKEN}",
