@@ -1,0 +1,2 @@
+bleak==3.0.2
+aiobmsble==0.30.0

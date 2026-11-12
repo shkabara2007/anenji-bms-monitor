@@ -1,0 +1,165 @@
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="ANENJI SH12100-H LiFePO4 BMS Bluetooth: BLE/GATT protocol, Windows monitor and PowMR charging experiments"><title>ANENJI BMS Monitor — Bluetooth, диагностика и измерения</title><style>body{font:16px/1.6 system-ui,Segoe UI,sans-serif;background:#f8fafc;color:#172033;margin:0}header{background:#12223e;color:white;padding:26px max(5vw,18px)}header p{max-width:850px}main{max-width:1000px;margin:auto;padding:22px}nav{display:flex;gap:16px;flex-wrap:wrap}nav a{color:#c0dcff}section{background:white;padding:24px;margin:16px 0;border:1px solid #dce3ed;border-radius:10px}table{border-collapse:collapse;display:block;overflow-x:auto;width:100%}th,td{border:1px solid #ddd;padding:8px;text-align:left}th{background:#eef3fa}code{background:#e6edf6;padding:2px 4px;border-radius:3px}pre{overflow:auto;background:#e6edf6;padding:10px}a{color:#185abc}h2{border-bottom:1px solid #dde3ed;padding-bottom:8px}footer{text-align:center;padding:22px;color:#5b6474}</style></head><body><header><h1>ANENJI BMS Monitor — открытое исследование</h1><p>Исходники Windows BLE-монитора и проверенные результаты измерений двух LiFePO₄ аккумуляторов в резервной системе PowMR. Данные обезличены.</p><nav><a href="#readme">О проекте</a><a href="#observations">Измерения</a><a href="#ble">BLE/GATT</a></nav></header><main><section id="readme"><h2>Проект</h2>
+<h1>ANENJI BMS Monitor (Windows) — открытые результаты экспериментов</h1>
+<p><strong>Язык:</strong> <a href="README.md">English</a> · <strong>Материалы:</strong> наблюдения пользователя, 6–12 ноября 2026 г.</p>
+<p>Проект для чтения данных <strong>двух аккумуляторов ANENJI LiFePO₄ 12,8 В / 100 А·ч</strong>, оборудованных BLE BMS с рекламируемым именем <code>SH12100-H-*</code>. Рабочая проверка проведена на Windows с <strong>Python 3.13.17, Bleak 3.0.2 и aiobmsble 0.30.0</strong>. Программа показывает напряжение, ток, SOC, ячейки, температуру, флаги MOS, ошибки и записывает CSV на Рабочий стол.</p>
+<blockquote>
+<p><strong>Ограничение безопасности:</strong> проект предназначен только для наблюдения и анализа. Данные BLE могут быть ошибочными или недоступными. Не используйте программу для защиты батареи, автоматического управления зарядом, отключения при аварии или принятия решений, от которых зависит безопасность.</p>
+</blockquote>
+<h2>Быстрый запуск исходников</h2>
+<ol>
+<li>На Windows установите Python (рекомендуется версия 3.13) и зависимости: <code>py -m pip install -r requirements.txt</code>.</li>
+<li>Создайте рядом с исходниками <code>batteries.json</code> по образцу <code>batteries.example.json</code>. Замените <strong>оба демонстрационных имени</strong> точными именами <em>Ваших</em> BMS; они должны совпадать с именами Bluetooth-рекламы.</li>
+<li>Запустите <code>py battery_gui_v8_13.py</code>. Нажмите <strong>«Обновить»</strong>; сканирование и чтение выполняются только по кнопке.</li>
+<li>Для EXE также установите PyInstaller: <code>py -m pip install -r requirements-build.txt</code> и запустите <code>BUILD_ANENJI_BMS_v8_13.bat</code>. Файл <code>batteries.json</code> должен лежать рядом с EXE при запуске.</li>
+</ol>
+<p>Никаких персональных адресов Bluetooth, пользовательских путей Windows или журналов владельца проект не содержит. Готовый Windows EXE, собранный для конкретных аккумуляторов владельца, <strong>не публикуется</strong>.</p>
+<h2>Что было подтверждено</h2>
+<ul>
+<li>Обе BMS действительно передают BLE-объявления <code>SH12100-H-*</code>.</li>
+<li>Для испытанных устройств GATT содержит <code>FFFA</code> (сервис), <code>FFFB</code> (передача запросов) и <code>FFFC</code> (уведомления); при успешном опросе известен ответ на read-only запрос <code>A5 A5 00 03 ...</code>.</li>
+<li>На Windows 12.11.2026 наблюдались <code>Could not start notify on 0019: Unreachable</code> и <code>Characteristic fffc was not found!</code>; в более поздних запусках чтение обеих батарей <strong>успешно</strong> и в варианте <code>aiobmsble</code> 8.12, и через прямой <code>Bleak</code> 8.13.</li>
+<li><strong>Причина временных сбоев не доказана</strong>, как и преимущество 8.13 по надёжности: при успешных тестах 8.13 дополнительный обход подписки не использовался.</li>
+<li>В зарядных экспериментах с PowMR при установках Bulk 14,2 / 14,3 / 14,4 В, Float 13,7 В наблюдались завершения тока около <strong>13,61 В</strong>, при этом SOC BMS мог быть <strong>93%/90%</strong>, а дельта одной батареи достигала <strong>~46–50 мВ</strong>. Значение 14,4 В — <strong>уставка</strong>, фактическое достижение его не зафиксировано. Реальная стадия Bulk/Float прибором не подтверждена.</li>
+<li>При разряде дельта той же батареи могла снижаться до <strong>~4–7 мВ</strong>; отдельная батарея имела ~5–10 мВ. Это <strong>не диагноз</strong> и не доказывает ни отказ балансира, ни корректность показаний SOC.</li>
+</ul>
+<h2>Документы</h2>
+<ul>
+<li><a href="docs/OBSERVATIONS_RU.md">Технические выводы и показания</a></li>
+<li><a href="docs/BLE_NOTES_RU.md">BLE/GATT — ошибки и восстановление</a></li>
+<li><a href="docs/OBSERVATIONS_EN.md">English technical summary</a></li>
+<li><a href="examples/measurements_sample.csv">Обезличенный демонстрационный CSV</a></li>
+<li><a href="PRIVACY.md">Контроль приватности</a></li>
+</ul>
+<p>Программа использует <code>bleak</code> и <code>aiobmsble</code> как сторонние зависимости. Продукт <strong>не аффилирован с ANENJI или PowMR</strong>. Выводы получены на одном комплекте оборудования; воспроизведение на других BMS требует проверки.</p>
+
+</section>
+<section id="observations"><h2>Результаты зарядки</h2>
+<h1>Измерения и выводы: ANENJI + PowMR (ноябрь 2026)</h1>
+<h2>Установка</h2>
+<ul>
+<li>Инвертор: <strong>PowMR POW-HVM1K-12V</strong>, 12 В / около 1 кВт, при доступной сети — BYPASS.</li>
+<li>АКБ: <strong>2 × ANENJI LiFePO₄ 12,8 В 100 А·ч</strong>, параллельное подключение; каждая батарея имеет собственную BLE BMS.</li>
+<li>Мониторинг: две BMS семейства <code>SH12100-H-*</code>, ток, напряжение, напряжения 4 ячеек, SOC, состояния MOS, температура, ошибка BMS, дельта.</li>
+<li>Настройки теста инвертора: программа 26 (Bulk/CV) <strong>14,2 → 14,3 → 14,4 В</strong>; программа 27 (Float) <strong>13,7 В</strong>; BMS пишет <code>Charge MOS=ON</code> во всех приведённых ниже точках.</li>
+</ul>
+<h2>Проверенные события</h2>
+<table>
+<thead>
+<tr>
+  <th>Период</th>
+  <th>Условие</th>
+  <th>Первая АКБ</th>
+  <th>Вторая АКБ</th>
+  <th>Вывод и ограничение</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td>7 ноября, конец заряда при Bulk 14,2 В</td>
+  <td>0 А в BMS, ~13,61 В</td>
+  <td>SOC ~94%, ΔV ~49 мВ</td>
+  <td>SOC ~91%, ΔV ~10 мВ</td>
+  <td>Окончание существенного тока; истинная стадия зарядника не измерена</td>
+</tr>
+<tr>
+  <td>10 ноября, 19:18, Bulk 14,3 В</td>
+  <td>Обе батареи ещё заряжаются</td>
+  <td>~93%, +5,78 А, ΔV 10 мВ</td>
+  <td>~90%, +4,54 А, ΔV 6 мВ</td>
+  <td>В начале позднего этапа ΔV была меньше</td>
+</tr>
+<tr>
+  <td>10 ноября, ~19:57, Bulk 14,3 В</td>
+  <td>~13,61 В, 0 А</td>
+  <td>~93%, ΔV 47 мВ</td>
+  <td>~90%, ΔV 10 мВ</td>
+  <td>Не наблюдалось улучшения на конце зарядки</td>
+</tr>
+<tr>
+  <td>10 ноября, 20:25, сеть отключена</td>
+  <td>Разряд около −5 А на батарею</td>
+  <td>~92%, ΔV 7 мВ</td>
+  <td>~89%, ΔV 6 мВ</td>
+  <td>При разряде разброс быстро уменьшился</td>
+</tr>
+<tr>
+  <td>10 ноября, 20:35, Bulk 14,4 В</td>
+  <td>Заряд после возврата сети</td>
+  <td>+9,32 А, ΔV 22 мВ</td>
+  <td>+8,45 А, ΔV 5 мВ</td>
+  <td>Тест начался при высоком SOC, не с низкого заряда</td>
+</tr>
+<tr>
+  <td>10 ноября, 20:47, Bulk 14,4 В</td>
+  <td>13,61 В, 0 А в обеих BMS</td>
+  <td>~93%, ΔV 46 мВ</td>
+  <td>~90%, ΔV 9 мВ</td>
+  <td>Повторилось поведение прежних испытаний</td>
+</tr>
+<tr>
+  <td>12 ноября, 16:32</td>
+  <td>Разряд −5,14/−5,50 А</td>
+  <td>13,23 В, SOC 85%, ΔV 5 мВ</td>
+  <td>13,22 В, SOC 82%, ΔV 7 мВ</td>
+  <td>Нет зарегистрированных защит BMS</td>
+</tr>
+</tbody>
+</table>
+<h2>Интерпретация — что известно, а что нет</h2>
+<p><strong>Подтверждено измерением:</strong> при повышении установки Bulk с 14,2 до 14,4 В наблюдаемое завершение заметного зарядного тока оставалось около 13,61 В. При разряде дисбаланс напряжений ячеек первой АКБ уменьшался. На момент наблюдений защита BMS не фиксировалась и Charge MOS был ON.</p>
+<p><strong>Не подтверждено:</strong> достижение реального напряжения 14,4 В, точный момент смены стадий Bulk/Absorption/Float, физическая остаточная ёмкость, истинная точность SOC, конкретные пороги балансира и наличие неисправности ячейки/балансира. Постоянное свечение CHG инвертора указывает на статус завершения заряда по его интерфейсу, но не измеряет фактическую ёмкость.</p>
+<p><strong>Инженерное замечание:</strong> ΔV — это измеренный разброс напряжений между ячейками в конкретный момент и при конкретном токе; не прямое измерение остаточной ёмкости и не основание для самостоятельного изменения параметров BMS. Сопоставлять нужно записи при близких токе, напряжении, температуре и SOC. Значения SOC двух BMS могут иметь разные погрешности.</p>
+<p>Это описание единичного испытания, <strong>не</strong> инструкция назначать универсальные напряжения зарядки для других батарей.</p>
+
+</section>
+<section id="ble"><h2>Bluetooth и ошибки</h2>
+<h1>Bluetooth Low Energy: опыт работы с Saihang-подобной BMS на Windows</h1>
+<h2>Что было увидено в реальном GATT</h2>
+<p>На испытанных BLE-модулях обнаружены характеристики:</p>
+<table>
+<thead>
+<tr>
+  <th>UUID</th>
+  <th>Свойства, наблюдавшиеся в приложении</th>
+  <th>Назначение в испытании</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td><code>0000fffa-0000-1000-8000-00805f9b34fb</code></td>
+  <td>сервис</td>
+  <td>Контейнер для GATT-канала BMS</td>
+</tr>
+<tr>
+  <td><code>0000fffb-0000-1000-8000-00805f9b34fb</code></td>
+  <td>READ, WRITE WITHOUT RESPONSE</td>
+  <td>Запросы к BMS</td>
+</tr>
+<tr>
+  <td><code>0000fffc-0000-1000-8000-00805f9b34fb</code></td>
+  <td>READ, NOTIFY</td>
+  <td>Ответы и уведомления BMS</td>
+</tr>
+</tbody>
+</table>
+<p>В успешных сеансах Windows Bleak видны GATT-хэндлы <code>FFFB@0016</code> и <code>FFFC@0019</code>. <strong>Это примеры для двух экземпляров устройства, а не гарантированные хэндлы для всех версий BMS.</strong></p>
+<p>Read-only пакет, успешно получивший ответ в nRF Connect 8 ноября: <code>A5 A5 00 03 00 00 00 48 44 2D</code>. Он относится к запросам чтения; его не следует без анализа повторно использовать с иными устройствами. Ответ начинался с <code>A5 A5 00 03 ...</code>. Используются реализованные в <code>aiobmsble</code> проверки и декодер.</p>
+<h2>Сбои и точные сообщения</h2>
+<ul>
+<li><code>BleakError: Could not start notify on 0019: Unreachable</code> — обнаружение устройства прошло, но подписка на GATT-уведомления не открылась.</li>
+<li><code>BleakCharacteristicNotFoundError: Characteristic fffc was not found!</code> — нужная характеристика отсутствовала в доступном при данном подключении наборе сервисов.</li>
+<li><code>WinError -2147023673</code>: ошибка Windows с текстом об отмене операции; не доказательство, что человек действительно отменял операцию.</li>
+</ul>
+<p><strong>Нельзя по одному логу определить, что причина на стороне Windows, прошивки BMS, радиоусловий или конфликта соединений.</strong></p>
+<h2>Чему научили успешные испытания</h2>
+<ul>
+<li>Вариант v8.12 через <code>aiobmsble</code> 12 ноября в 16:07 и 16:17 успешно прочитал обе BMS с первой попытки.</li>
+<li>Вариант v8.13 через <code>BleakClient</code> с поиском GATT без использования кэша (<code>winrt.use_cached_services=False</code>) 12 ноября в 16:25 и 16:32 успешно прочитал обе BMS с первой попытки.</li>
+<li>В обеих успешных попытках v8.13 подписка на <code>FFFC</code> <strong>сработала обычным способом</strong>. Запасной вариант прямого чтения <code>FFFC</code> <strong>не применялся и не был подтверждён испытаниями</strong>.</li>
+<li>Следовательно, нельзя утверждать, что v8.13 устранил первопричину или доказанно надёжнее v8.12. Полезная особенность v8.13 — больше диагностики и три последовательных режима поиска сервисов (<code>uncached</code>, <code>default</code>, <code>cached</code>).</li>
+</ul>
+<h2>При переносе на другое оборудование</h2>
+<p>Запустите только один BLE-клиент за раз, укажите в локальном <code>batteries.json</code> точные Bluetooth-имена своих двух BMS, не подставляйте чужие MAC. Запросы только на чтение; изменения защит BMS экспериментальным ПО недопустимы. Не отправляйте в публичные issues реальные MAC-адреса, имя пользователя Windows или необработанные логи.</p>
+<p>Внешние материалы: <a href="https://bleak.readthedocs.io/en/latest/backends/windows.html">Bleak: Windows backend</a>, <a href="https://bleak.readthedocs.io/en/latest/_modules/bleak/backends/winrt/client.html">Bleak: обработка WinRT ошибок</a>, <a href="https://github.com/patman15/aiobmsble">aiobmsble</a>.</p>
+
+</section></main><footer>Независимое исследование. Только мониторинг, не защитная автоматика. 2026.</footer></body></html>

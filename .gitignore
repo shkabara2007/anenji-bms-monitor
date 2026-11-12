@@ -1,0 +1,14 @@
+# User-specific BLE names, logs and diagnostics
+batteries.json
+ANENJI_BMS_history.csv
+ANENJI_BMS_history*.csv
+ANENJI_BLE_log_*.txt
+ANENJI_BMS_diagnostic_*.txt
+*.exe
+*.spec
+dist/
+build/
+__pycache__/
+*.pyc
+.env
+.venv/
