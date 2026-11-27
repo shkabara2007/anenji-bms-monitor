@@ -1,32 +1,19 @@
 {
   "repository": "shkabara2007/anenji-bms-monitor",
-  "updated_at_utc": "2026-11-26T23:47:28+00:00",
+  "updated_at_utc": "2026-11-27T08:15:12+00:00",
   "rolling_14_days": {
-    "views": 1,
-    "unique_visitors": 1,
-    "clones": 347,
-    "unique_cloners": 144
+    "views": 0,
+    "unique_visitors": 0,
+    "clones": 333,
+    "unique_cloners": 137
   },
   "repository_totals": {
     "stars": 0,
     "forks": 0,
     "watchers": 0
   },
-  "popular_pages_last_14_days": [
-    {
-      "path": "/shkabara2007/anenji-bms-monitor",
-      "title": "Overview",
-      "count": 1,
-      "uniques": 1
-    }
-  ],
-  "referring_sites_last_14_days": [
-    {
-      "referrer": "github.com",
-      "count": 1,
-      "uniques": 1
-    }
-  ],
+  "popular_pages_last_14_days": [],
+  "referring_sites_last_14_days": [],
   "daily": {
     "2026-10-30": {
       "views": 0,
@@ -189,6 +176,12 @@
       "unique_visitors": 0,
       "clones": 18,
       "unique_cloners": 11
+    },
+    "2026-11-26": {
+      "views": 0,
+      "unique_visitors": 0,
+      "clones": 15,
+      "unique_cloners": 8
     }
   },
   "rolling_14_day_snapshots": {
@@ -281,6 +274,12 @@
       "unique_visitors": 1,
       "clones": 347,
       "unique_cloners": 144
+    },
+    "2026-11-27": {
+      "views": 0,
+      "unique_visitors": 0,
+      "clones": 333,
+      "unique_cloners": 137
     }
   },
   "popular_pages_snapshots": {
@@ -396,7 +395,8 @@
         "count": 1,
         "uniques": 1
       }
-    ]
+    ],
+    "2026-11-27": []
   },
   "referrer_snapshots": {
     "2026-11-12": [],
@@ -497,6 +497,7 @@
         "count": 1,
         "uniques": 1
       }
-    ]
+    ],
+    "2026-11-27": []
   }
 }
